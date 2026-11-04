@@ -70,6 +70,7 @@ export function ProductImage({
           src={resolvedUrl}
           alt={effectiveAlt}
           loading={priority ? "eager" : "lazy"}
+          referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
           style={{
             width: "100%",

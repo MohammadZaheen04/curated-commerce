@@ -30,6 +30,7 @@ import { BuyingGuidesModal } from "./components/modals/BuyingGuidesModal";
 import { AuthModal } from "./components/modals/AuthModal";
 import { AddProductModal } from "./components/modals/AddProductModal";
 import { OrderSuccessModal } from "./components/modals/OrderSuccessModal";
+import fallbackCatalog from "./config/fallbackData.json";
 
 import "./App.css";
 
@@ -137,9 +138,12 @@ export default function App() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Filter out any internal test products from public catalog
+  // Filter out internal test products, falling back to static catalog if backend is unreachable
   const rawProducts = useMemo(() => {
-    const list = catalogData?.data || [];
+    const list =
+      catalogData?.data && catalogData.data.length > 0
+        ? catalogData.data
+        : fallbackCatalog.data;
     return list.filter(
       (p) =>
         p.sku !== "TEST-PAYMENT-1" &&
@@ -148,7 +152,20 @@ export default function App() {
     );
   }, [catalogData?.data]);
 
-  const categories = useMemo(() => catData?.data || [], [catData?.data]);
+  const categories = useMemo(() => {
+    if (catData?.data && catData.data.length > 0) return catData.data;
+    const catMap = new Map();
+    for (const p of fallbackCatalog.data) {
+      if (p.category && !catMap.has(p.category.slug)) {
+        catMap.set(p.category.slug, {
+          id: p.categoryId,
+          name: p.category.name,
+          slug: p.category.slug,
+        });
+      }
+    }
+    return Array.from(catMap.values());
+  }, [catData?.data]);
 
   // Compute live category counts from the exact dataset
   const categoryCounts = useMemo(() => {

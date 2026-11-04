@@ -67,12 +67,16 @@ export const PRODUCT_ALT_TEXT = {
  */
 export function getProductImageUrl(product) {
   if (!product) return null;
-  const originalUrl = product.media?.[0]?.cdnUrl || product.mediaUrl;
+  const mediaItem = product.media?.[0];
+  const originalUrl =
+    (typeof mediaItem === "string" ? mediaItem : mediaItem?.cdnUrl) ||
+    product.mediaUrl;
   if (!ENABLE_IMAGE_OVERRIDES) return originalUrl;
 
   const override = IMAGE_OVERRIDES[product.slug] || IMAGE_OVERRIDES[product.id];
-  if (override === "placeholder") return null;
-  if (override && typeof override === "string") return override;
+  if (override && typeof override === "string" && override !== "placeholder") {
+    return override;
+  }
   return originalUrl;
 }
 

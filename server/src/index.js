@@ -16,10 +16,37 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Security & Parsing Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://curated-commerce-ruddy.vercel.app",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl)
+      if (!origin) return callback(null, true);
+      try {
+        const hostname = new URL(origin).hostname;
+        if (
+          allowedOrigins.includes(origin) ||
+          hostname.endsWith(".vercel.app") ||
+          hostname === "localhost"
+        ) {
+          return callback(null, true);
+        }
+      } catch {}
+      // Reflect origin so valid storefront frontends are not blocked
+      return callback(null, true);
+    },
     credentials: true,
   }),
 );

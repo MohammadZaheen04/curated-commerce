@@ -5,6 +5,7 @@ import { useStore } from "../../context/StoreContext";
 import { Icons } from "../common/Icons";
 import { ProductImage } from "../common/ProductImage";
 import { calcDiscount } from "../../utils/formatters";
+import fallbackCatalog from "../../config/fallbackData.json";
 
 /* ── Spec label map & formatter ─────────────────────────────────────────── */
 const SPEC_LABEL_MAP = {
@@ -72,7 +73,8 @@ export function ProductDetailModal({ slug, onClose }) {
     enabled: !!slug,
   });
 
-  const product = data?.data;
+  const product =
+    data?.data || fallbackCatalog.data.find((p) => p.slug === slug);
   const wishlisted = product ? isWishlisted(product.id) : false;
   const disc = product ? calcDiscount(product.price, product.mrp) : null;
   const price = product ? parseFloat(product.price).toFixed(0) : "0";
