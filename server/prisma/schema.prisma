@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Neon or Supabase connection string
+}
+
+enum Role {
+  CUSTOMER
+  EDITOR
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  FLAGGED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  PUBLISHED
+  UNDER_REVIEW // Auto-triggered if rating drops < 4.0
+  ARCHIVED
+}
+
+enum PriceTier {
+  BUDGET
+  MID_RANGE
+  VALUE_LUXURY
+}
+
+model User {
+  id            String        @id @default(cuid())
+  clerkId       String?       @unique
+  name          String
+  email         String        @unique
+  passwordHash  String
+  role          Role          @default(CUSTOMER)
+  accountStatus AccountStatus @default(ACTIVE)
+  lastLoginIp   String?
+  refreshToken  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  articles      EditorialPost[]
+  reviews       Review[]
+  auditActor    AuditLog[]      @relation("ActorLogs")
+  auditTarget   AuditLog[]      @relation("TargetLogs")
+
+  @@index([accountStatus, role])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    // e.g., "Skincare", "Men's Wear", "Gadgets"
+  slug     String    @unique
+  products Product[]
+  posts    EditorialPost[]
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  sku            String        @unique
+  title          String
+  slug           String        @unique
+  categoryId     String
+  category       Category      @relation(fields: [categoryId], references: [id])
+  price          Decimal       @db.Decimal(10, 2)
+  mrp            Decimal       @db.Decimal(10, 2)
+  priceTier      PriceTier     @default(BUDGET)
+  ratingAvg      Float         @default(4.5)
+  reviewCount    Int           @default(0)
+  curatedVerdict String        @db.Text // Editor's note on why this made the cut
+  specs          Json          // Category-specific JSON (e.g., {"skinType": "Oily", "spf": 50})
+  status         ProductStatus @default(PUBLISHED)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  media          ProductMedia[]
+  reviews        Review[]
+  featuredIn     EditorialPost[] @relation("PostProducts")
+
+  @@index([categoryId, status, ratingAvg(sort: Desc), price(sort: Asc)])
+}
+
+model ProductMedia {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cdnUrl    String  // Hosted externally on Cloudinary / AWS S3 + CloudFront
+  blurhash  String? // Base64/Blurhash placeholder for zero-layout-shift loading
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+}
+
+model EditorialPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  subtitle    String
+  heroCdnUrl  String
+  bodyMarkdown String   @db.Text
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  products    Product[] @relation("PostProducts")
+  publishedAt DateTime  @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int      // 1 to 5
+  comment    String   @db.Text
+  isVerified Boolean  @default(true)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id              String   @id @default(cuid())
+  actorId         String
+  actor           User     @relation("ActorLogs", fields: [actorId], references: [id])
+  targetAccountId String
+  targetAccount   User     @relation("TargetLogs", fields: [targetAccountId], references: [id])
+  actionType      String   // e.g., "ACCOUNT_SUSPENDED", "ROLE_UPDATED", "SESSION_REVOKED"
+  reason          String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@index([targetAccountId, createdAt(sort: Desc)])
+}

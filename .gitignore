@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production build outputs
+dist/
+client/dist/
+
+# Environment files (never commit secrets)
+.env
+.env.*
+server/.env
+
+# OS / Editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Local databases & logs
+*.log
+YouPI-PG/
+
