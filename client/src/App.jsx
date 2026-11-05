@@ -150,7 +150,7 @@ export default function App() {
         p.slug !== "payment-test-product-1-rupee" &&
         !p.title.toLowerCase().includes("test product"),
     );
-  }, [catalogData?.data]);
+  }, [catalogData]);
 
   const categories = useMemo(() => {
     if (catData?.data && catData.data.length > 0) return catData.data;
@@ -165,7 +165,7 @@ export default function App() {
       }
     }
     return Array.from(catMap.values());
-  }, [catData?.data]);
+  }, [catData]);
 
   // Compute live category counts from the exact dataset
   const categoryCounts = useMemo(() => {
