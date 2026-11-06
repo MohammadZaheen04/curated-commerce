@@ -9,18 +9,6 @@ function toSentenceCase(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-// Display helper that truncates at a word boundary (~85-90 characters) with an ellipsis
-function truncateAtWord(text, maxChars = 88) {
-  if (!text || typeof text !== "string") return "";
-  if (text.length <= maxChars) return text;
-  const sub = text.slice(0, maxChars);
-  const lastSpace = sub.lastIndexOf(" ");
-  if (lastSpace > 0) {
-    return sub.slice(0, lastSpace).trim() + "…";
-  }
-  return sub.trim() + "…";
-}
-
 export function SkeletonCard() {
   return (
     <div className="product-card skeleton-card" aria-hidden="true">
@@ -59,8 +47,6 @@ export function ProductCard({ product, onQuickView }) {
     product.reviewCount > 0
       ? product.reviewCount
       : Math.floor(product.ratingAvg * 32);
-
-  const displayVerdict = truncateAtWord(product.curatedVerdict, 88);
 
   return (
     <article className="product-card" aria-label={product.title}>
@@ -134,26 +120,27 @@ export function ProductCard({ product, onQuickView }) {
           {product.title}
         </h3>
 
-        {/* Description: 14px/1.5, word-boundary truncated + CSS line-clamp 2 reserved min-height */}
+        {/* Description: 13.5px/1.5, CSS line-clamp 2 reserved min-height */}
         <p className="card-verdict" title={product.curatedVerdict}>
-          {displayVerdict}
+          {product.curatedVerdict}
         </p>
 
-        {/* 3. Footer (divider + price row pinned to bottom across every card in row) */}
+        {/* 3. Footer: price + discount on one line, Add button on its own full-width row */}
         <div className="card-footer">
-          {/* Price cluster: current price, struck original, discount tag */}
-          <div className="card-price-cluster">
-            <span className="card-price-current">
-              ${parseFloat(product.price).toFixed(0)}
-            </span>
-            {disc && (
-              <>
-                <span className="card-price-mrp">
-                  ${parseFloat(product.mrp).toFixed(0)}
-                </span>
-                <span className="card-discount-tag">Save {disc}%</span>
-              </>
-            )}
+          <div className="card-price-row">
+            <div className="card-price-cluster">
+              <span className="card-price-current">
+                ${parseFloat(product.price).toFixed(0)}
+              </span>
+              {disc && (
+                <>
+                  <span className="card-price-mrp">
+                    ${parseFloat(product.mrp).toFixed(0)}
+                  </span>
+                  <span className="card-discount-tag">Save {disc}%</span>
+                </>
+              )}
+            </div>
           </div>
 
           <button
@@ -161,8 +148,8 @@ export function ProductCard({ product, onQuickView }) {
             onClick={() => addToCart(product, 1)}
             aria-label={`Add ${product.title} to cart`}
           >
-            <Icons.Plus size={13} strokeWidth={2.4} />
-            <span className="btn-add-label">Add</span>
+            <Icons.Plus size={14} strokeWidth={2.4} />
+            <span className="btn-add-label">Add to Cart</span>
           </button>
         </div>
       </div>
