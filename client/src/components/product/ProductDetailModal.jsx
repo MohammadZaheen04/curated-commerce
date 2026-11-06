@@ -152,7 +152,53 @@ export function ProductDetailModal({ slug, onClose }) {
         {isLoading ? (
           <div className="modal-loading">Loading verified verdict…</div>
         ) : product ? (
-          <div className="modal-split-layout">
+          <>
+            {/* React 19 Native Head Tags for Product QuickView / Detail */}
+            <title>{`${product.name} | Curated Commerce`}</title>
+            <meta
+              name="description"
+              content={product.curatedVerdict || product.description || `Benchmark review and specs for ${product.name}.`}
+            />
+            <meta property="og:title" content={`${product.name} — Curated Commerce`} />
+            <meta
+              property="og:description"
+              content={product.curatedVerdict || `Hands-on bench test results for ${product.name}.`}
+            />
+            {product.media?.[0]?.url && <meta property="og:image" content={product.media[0].url} />}
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org/",
+                  "@type": "Product",
+                  name: product.name,
+                  image: product.media?.map((m) => m.url) || [],
+                  description: product.curatedVerdict || product.description,
+                  brand: {
+                    "@type": "Brand",
+                    name: product.brand || "Curated",
+                  },
+                  offers: {
+                    "@type": "Offer",
+                    priceCurrency: "USD",
+                    price: product.price,
+                    availability:
+                      product.inventoryCount > 0
+                        ? "https://schema.org/InStock"
+                        : "https://schema.org/OutOfStock",
+                  },
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: product.ratingAvg || 4.5,
+                    reviewCount: reviewsCount || 1,
+                    bestRating: "5",
+                    worstRating: "1",
+                  },
+                }),
+              }}
+            />
+
+            <div className="modal-split-layout">
             {/* Left: Image panel */}
             <div className="modal-media-col">
               <ProductImage
@@ -487,7 +533,8 @@ export function ProductDetailModal({ slug, onClose }) {
               </div>
             </div>
           </div>
-        ) : (
+        </>
+      ) : (
           <div className="modal-loading">Product not found.</div>
         )}
       </div>

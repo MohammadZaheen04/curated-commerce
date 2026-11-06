@@ -293,6 +293,23 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* React 19 Native Head Tags (Hoisted to document head) */}
+      <title>
+        {filters.category
+          ? `${categories.find((c) => c.slug === filters.category)?.name || "Catalog"} | Curated Commerce`
+          : "Curated Commerce — Bench-Tested Gear. Zero Sponsored Products."}
+      </title>
+      <meta
+        name="description"
+        content="An uncompromising catalog of benchmark-tested computing, audio, and everyday gear. Every item bench-tested, 4.2 floor, zero sponsored placements."
+      />
+      <meta property="og:title" content="Curated Commerce — Bench-Tested Gear" />
+      <meta
+        property="og:description"
+        content="Every product in our catalog passes rigorous hands-on laboratory benchmarks. No sponsored rankings, zero sponsored listings."
+      />
+      <meta property="og:type" content="website" />
+
       {/* 1. Light, Calm Navbar */}
       <Navbar
         filters={filters}
