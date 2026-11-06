@@ -17,12 +17,17 @@ export function FilterBar({
     filters.onlyOnSale ||
     filters.q !== "";
 
+  // Filter chips: hide categories with fewer than 3 products to keep catalog dense & curated
+  const visibleCategories = categories.filter(
+    (c) => (categoryCounts[c.slug] ?? c._count?.products ?? 0) >= 3,
+  );
+
   return (
     <div className="sticky-filters-bar" aria-label="Catalog filters">
       <div className="container">
-        {/* Category Chip Row: Wrap cleanly without overflow arrows */}
-        <div className="chips-wrapper-wrapped">
-          <div className="chips-container-wrapped">
+        {/* Category Chip Row: Single horizontally scrollable row */}
+        <div className="chips-wrapper-scrollable">
+          <div className="chips-container-scrollable">
             {/* "All" chip */}
             <button
               className={`chip-btn${filters.category === null ? " active" : ""}`}
@@ -39,8 +44,8 @@ export function FilterBar({
               <span className="chip-count">{totalCount}</span>
             </button>
 
-            {/* Individual Category Chips with accurate dataset counts */}
-            {categories.map((c) => {
+            {/* Individual Category Chips with accurate dataset counts (>= 3 products) */}
+            {visibleCategories.map((c) => {
               const isActive = filters.category === c.slug;
               const count = categoryCounts[c.slug] ?? c._count?.products ?? 0;
               return (

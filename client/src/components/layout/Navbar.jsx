@@ -26,7 +26,14 @@ export function Navbar({
     <header className="navbar-sticky">
       <div className="container navbar-inner">
         <div className="brand-group">
-          <img src=""></img>
+          <a href="/" className="brand-logo-link" aria-label="Curated Commerce Home">
+            <span className="brand-logo-icon">
+              <Icons.Award size={20} strokeWidth={2.2} />
+            </span>
+            <span className="brand-logo-text">
+              Curated<span className="brand-dot" />
+            </span>
+          </a>
 
           {/* Primary Navigation Links (Desktop) */}
           <nav className="nav-links-primary" aria-label="Main Navigation">
@@ -116,6 +123,7 @@ export function Navbar({
             className="btn-icon-utility"
             onClick={() => setIsWishlistOpen(true)}
             aria-label={`Open wishlist (${wishlistCount} items)`}
+            title={`Saved items (${wishlistCount})`}
           >
             <Icons.Heart size={18} strokeWidth={1.75} filled={wishlistCount > 0} />
             {wishlistCount > 0 && (
