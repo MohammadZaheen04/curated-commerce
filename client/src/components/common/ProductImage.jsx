@@ -12,10 +12,12 @@ function getCategoryPlaceholderIcon(catSlug) {
     case "wearables":
       return <Icons.Watch size={28} strokeWidth={1.5} />;
     case "accessories":
+    case "tech-accessories":
       return <Icons.Zap size={28} strokeWidth={1.5} />;
     case "cameras":
       return <Icons.Camera size={28} strokeWidth={1.5} />;
     case "smarthome":
+    case "smart-home":
       return <Icons.Home size={28} strokeWidth={1.5} />;
     case "gaming":
       return <Icons.Gamepad size={28} strokeWidth={1.5} />;
@@ -38,6 +40,7 @@ export function ProductImage({
   alt,
 }) {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   if (!product) return null;
 
@@ -47,8 +50,9 @@ export function ProductImage({
     product.category?.slug ||
     (typeof product.category === "string" ? product.category.toLowerCase() : "");
 
-  const hasValidImage = resolvedUrl && !imgError;
+  const hasValidImage = !!resolvedUrl && !imgError;
   const effectiveAlt = alt !== undefined ? alt : getProductAltText(product);
+  const blurhash = product.media?.[0]?.blurhash;
 
   return (
     <div
@@ -65,24 +69,13 @@ export function ProductImage({
         justifyContent: "center",
       }}
     >
-      {hasValidImage ? (
-        <img
-          src={resolvedUrl}
-          alt={effectiveAlt}
-          loading={priority ? "eager" : "lazy"}
-          referrerPolicy="no-referrer"
-          onError={() => setImgError(true)}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: objectFit,
-            display: "block",
-          }}
-        />
-      ) : (
+      {/* 1. Underlying blurhash / neutral placeholder always present while loading */}
+      {(!imgLoaded || !hasValidImage) && (
         <div
           className="product-image-placeholder-panel"
           style={{
+            position: "absolute",
+            inset: 0,
             width: "100%",
             height: "100%",
             display: "flex",
@@ -92,10 +85,14 @@ export function ProductImage({
             padding: "16px",
             textAlign: "center",
             gap: "8px",
-            backgroundColor: "var(--surface-subtle)",
-            border: "1px dashed var(--border)",
+            backgroundColor: blurhash ? undefined : "var(--surface-subtle)",
+            background: blurhash
+              ? `linear-gradient(135deg, rgba(30,42,94,0.08), rgba(227,160,8,0.08))`
+              : "var(--surface-subtle)",
+            border: imgError ? "1px dashed var(--border)" : "none",
             borderRadius: "inherit",
             color: "var(--text-secondary)",
+            zIndex: 1,
           }}
         >
           <div style={{ color: "var(--accent)" }}>
@@ -130,9 +127,32 @@ export function ProductImage({
           )}
         </div>
       )}
+
+      {/* 2. Primary Image with explicit dimensions, lazy loading, and error handling */}
+      {hasValidImage && (
+        <img
+          src={resolvedUrl}
+          alt={effectiveAlt}
+          width={800}
+          height={600}
+          loading={priority ? "eager" : "lazy"}
+          referrerPolicy="no-referrer"
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgError(true)}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: objectFit,
+            display: "block",
+            position: "relative",
+            zIndex: 2,
+            opacity: imgLoaded ? 1 : 0,
+            transition: "opacity 0.2s ease-in-out",
+          }}
+        />
+      )}
     </div>
   );
 }
 
 export default ProductImage;
-
