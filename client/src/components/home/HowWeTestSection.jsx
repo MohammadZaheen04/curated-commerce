@@ -17,7 +17,7 @@ export function HowWeTestSection({ onOpenManifesto, productsCount }) {
           <div className="test-stat-badge" title="Lab benchmark testing pipeline">
             <span>{productsCount || 34} products bench-tested</span>
             <span className="dot-divider">•</span>
-            <span>0 sponsored placements</span>
+            <span>Empirical Testing Pipeline</span>
           </div>
         </div>
 

@@ -177,7 +177,7 @@ export function ProductDetailModal({ slug, onClose }) {
                   {product.ratingAvg.toFixed(1)}
                 </span>
                 <span className="modal-review-count">
-                  {reviewsCount} verified reviews
+                  {reviewsCount} owner reviews
                 </span>
               </div>
 

@@ -41,7 +41,7 @@ export function Footer({
             </p>
             <div className="footer-trust-badge">
               <Icons.Check size={14} strokeWidth={2.5} />
-              <span>Verified 4.2★ Quality Floor</span>
+              <span>Independent Hardware Benchmarks</span>
             </div>
           </div>
 
@@ -159,7 +159,7 @@ export function Footer({
             <h4 className="footer-col-title">Monthly newsletter</h4>
             <p className="footer-digest-copy">
               Receive our monthly roundup of newly tested products that passed
-              our 4.2★ benchmark.
+              our rigorous bench standards.
             </p>
 
             <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>

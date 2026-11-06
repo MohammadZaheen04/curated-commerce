@@ -475,30 +475,36 @@ textarea {
   grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
   gap: var(--space-12);
+  min-height: 520px;
 }
 
 .hero-left-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
 }
 
-/* Trust Line: 3 items in a single legible row */
+/* Trust Line: Enlarged prominent row above headline */
 .trust-line-row {
   display: flex;
   align-items: center;
   gap: var(--space-6);
   flex-wrap: wrap;
   margin-bottom: var(--space-6);
+  padding: 8px 16px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
 }
 
 .trust-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 .trust-item-icon {

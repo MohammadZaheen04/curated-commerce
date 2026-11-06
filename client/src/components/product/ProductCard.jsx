@@ -106,7 +106,7 @@ export function ProductCard({ product, onQuickView }) {
             <Icons.Star size={12} filled={true} />
             <span>{product.ratingAvg.toFixed(1)}</span>
             <span className="card-rating-count">
-              ({reviewsCount})
+              ({reviewsCount} owner reviews)
             </span>
           </div>
         </div>

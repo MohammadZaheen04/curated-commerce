@@ -89,8 +89,20 @@ export function EditorialHero({
             </div>
 
             <p className="spotlight-verdict">
-              "{spotlightProduct.curatedVerdict}"
+              {spotlightProduct.curatedVerdict}
             </p>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "var(--text-secondary)",
+                marginTop: "-8px",
+                marginBottom: "12px",
+                display: "block",
+              }}
+            >
+              — Curated Bench Verdict
+            </span>
 
             <div className="spotlight-footer">
               <div>
