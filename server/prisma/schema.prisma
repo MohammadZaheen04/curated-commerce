@@ -46,6 +46,7 @@ model User {
 
   articles      EditorialPost[]
   reviews       Review[]
+  orders        Order[]
   auditActor    AuditLog[]      @relation("ActorLogs")
   auditTarget   AuditLog[]      @relation("TargetLogs")
 
@@ -80,6 +81,7 @@ model Product {
 
   media          ProductMedia[]
   reviews        Review[]
+  orderItems     OrderItem[]
   featuredIn     EditorialPost[] @relation("PostProducts")
 
   @@index([categoryId, status, ratingAvg(sort: Desc), price(sort: Asc)])
@@ -134,4 +136,47 @@ model AuditLog {
   createdAt       DateTime @default(now())
 
   @@index([targetAccountId, createdAt(sort: Desc)])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  totalAmountUsd  Decimal     @db.Decimal(10, 2)
+  totalAmountInr  Decimal     @db.Decimal(10, 2)
+  paymentProvider String      @default("YOUPI")
+  paymentId       String?
+  paymentStatus   String      @default("PENDING")
+  orderStatus     OrderStatus @default(CONFIRMED)
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([customerEmail, createdAt(sort: Desc)])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  title     String
+  sku       String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int      @default(1)
+  mediaUrl  String?
 }

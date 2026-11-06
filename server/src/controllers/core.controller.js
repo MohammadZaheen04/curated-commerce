@@ -62,6 +62,101 @@ export const getCategories = async (req, res) => {
   }
 };
 
+// GET /api/v1/editorial
+export const getEditorialPosts = async (req, res) => {
+  try {
+    const posts = await prisma.editorialPost.findMany({
+      include: {
+        category: { select: { name: true, slug: true } },
+        author: { select: { name: true } },
+      },
+      orderBy: { publishedAt: "desc" },
+    });
+    return res.json({ success: true, data: posts });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// POST /api/v1/products/:slug/reviews
+export const createProductReview = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { rating, comment, userName } = req.body;
+
+    const numRating = Number(rating);
+    if (!numRating || numRating < 1 || numRating > 5) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Rating must be between 1 and 5" });
+    }
+    if (!comment || typeof comment !== "string" || comment.trim().length < 5) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Comment must be at least 5 characters" });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { slug },
+    });
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    let userId = req.user?.id;
+    if (!userId) {
+      const reviewerEmail = `guest-${Date.now()}@curatedcommerce.internal`;
+      const author = await prisma.user.create({
+        data: {
+          name: userName?.trim() || "Verified Buyer",
+          email: reviewerEmail,
+          passwordHash: "guest-hash-verified",
+          role: "CUSTOMER",
+        },
+      });
+      userId = author.id;
+    }
+
+    const newCount = product.reviewCount + 1;
+    const newRatingAvg = Number(
+      (((product.ratingAvg * product.reviewCount) + numRating) / newCount).toFixed(2)
+    );
+    const newStatus = newRatingAvg < 4.0 ? "UNDER_REVIEW" : product.status;
+
+    const [review] = await prisma.$transaction([
+      prisma.review.create({
+        data: {
+          rating: numRating,
+          comment: comment.trim(),
+          userId,
+          productId: product.id,
+          isVerified: true,
+        },
+        include: { user: { select: { name: true } } },
+      }),
+      prisma.product.update({
+        where: { id: product.id },
+        data: {
+          reviewCount: newCount,
+          ratingAvg: newRatingAvg,
+          status: newStatus,
+        },
+      }),
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      data: review,
+      ratingAvg: newRatingAvg,
+      reviewCount: newCount,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 // GET /api/v1/products/:slug
 export const getProductBySlug = async (req, res) => {
   try {

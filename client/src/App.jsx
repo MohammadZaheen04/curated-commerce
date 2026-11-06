@@ -20,9 +20,10 @@ import { FilterBar } from "./components/product/FilterBar";
 import { ProductGrid } from "./components/product/ProductGrid";
 import { ProductDetailModal } from "./components/product/ProductDetailModal";
 
-// Cart & Wishlist Drawers
+// Cart, Wishlist & Orders Drawers
 import { CartDrawer } from "./components/cart/CartDrawer";
 import { WishlistDrawer } from "./components/cart/WishlistDrawer";
+import { OrdersDrawer } from "./components/cart/OrdersDrawer";
 
 // Modals
 import { HowWeCurateModal } from "./components/modals/HowWeCurateModal";
@@ -42,6 +43,7 @@ export default function App() {
     setIsCartOpen,
     wishlistCount,
     setIsWishlistOpen,
+    setIsOrdersOpen,
     showOrderSuccessModal,
     setShowOrderSuccessModal,
     lastOrder,
@@ -302,6 +304,7 @@ export default function App() {
         setShowCurateModal={setShowCurateModal}
         setShowAddProductModal={setShowAddProductModal}
         setIsWishlistOpen={setIsWishlistOpen}
+        setIsOrdersOpen={setIsOrdersOpen}
         setIsCartOpen={setIsCartOpen}
         wishlistCount={wishlistCount}
         cartCount={cartCount}
@@ -399,6 +402,7 @@ export default function App() {
       {/* Modals & Drawers */}
       <CartDrawer />
       <WishlistDrawer />
+      <OrdersDrawer />
 
       {selectedQuickViewSlug && (
         <ProductDetailModal

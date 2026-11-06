@@ -11,6 +11,7 @@ export function Navbar({
   setShowCurateModal,
   setShowAddProductModal,
   setIsWishlistOpen,
+  setIsOrdersOpen,
   setIsCartOpen,
   wishlistCount,
   cartCount,
@@ -120,6 +121,16 @@ export function Navbar({
             {wishlistCount > 0 && (
               <span className="utility-badge">{wishlistCount}</span>
             )}
+          </button>
+
+          {/* Orders History Button */}
+          <button
+            className="btn-icon-utility"
+            onClick={() => setIsOrdersOpen(true)}
+            aria-label="Open order history"
+            title="Order history"
+          >
+            <Icons.Tag size={17} strokeWidth={1.75} />
           </button>
 
           {/* Quiet Outlined Cart Button */}
@@ -289,6 +300,16 @@ export function Navbar({
                 }}
               >
                 How We Curate
+              </button>
+              <button
+                className="nav-link-btn"
+                style={{ textAlign: "left", fontSize: "16px" }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsOrdersOpen(true);
+                }}
+              >
+                Order History
               </button>
             </nav>
 

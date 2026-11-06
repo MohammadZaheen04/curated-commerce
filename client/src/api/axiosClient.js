@@ -74,7 +74,9 @@ export const CatalogAPI = {
   getBySlug: (slug) => apiClient.get(`/products/${slug}`),
   getCategories: () => apiClient.get("/products/categories"),
   getEditorialGuides: (category) =>
-    apiClient.get("/editorial/guides", { params: { category } }),
+    apiClient.get("/products/editorial", { params: { category } }),
+  createReview: (slug, payload) =>
+    apiClient.post(`/products/${slug}/reviews`, payload),
 };
 
 export const AdminAPI = {
@@ -89,6 +91,8 @@ export const AdminAPI = {
 
 export const CheckoutAPI = {
   createYoupiSession: (payload) => apiClient.post("/checkout/youpi", payload),
+  confirmOrder: (payload) => apiClient.post("/checkout/confirm", payload),
+  getOrders: (params) => apiClient.get("/checkout/orders", { params }),
   getSessionStatus: (paymentId) =>
     apiClient.get(`/checkout/session/${paymentId}`),
 };
