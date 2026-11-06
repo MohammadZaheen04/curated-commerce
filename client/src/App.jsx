@@ -12,7 +12,6 @@ import { Footer } from "./components/layout/Footer";
 import { EditorialHero } from "./components/home/EditorialHero";
 import { HowWeTestSection } from "./components/home/HowWeTestSection";
 import { EditorsPicksSection } from "./components/home/EditorsPicksSection";
-import { CategoryBrowseSection } from "./components/home/CategoryBrowseSection";
 import { BuyingGuidesTeaser } from "./components/home/BuyingGuidesTeaser";
 
 // Product Catalog Components
@@ -179,9 +178,28 @@ export default function App() {
     return counts;
   }, [rawProducts]);
 
-  // Client-side facet filtering
+  // Spotlight product: Sony WH-1000XM5 in Hero
+  const spotlightProduct = useMemo(() => {
+    if (!rawProducts || rawProducts.length === 0) return null;
+    return rawProducts.find((p) => p.slug === "sony-wh-1000xm5") || rawProducts[0];
+  }, [rawProducts]);
+
+  // Editor's picks IDs for carousel
+  const editorsPicksList = useMemo(() => {
+    return rawProducts.filter((p) => p.ratingAvg >= 4.8);
+  }, [rawProducts]);
+
+  // Client-side facet filtering with de-duplication
   const products = useMemo(() => {
     let list = [...rawProducts];
+
+    // De-duplicate: If user is not explicitly viewing only editors picks or filtering,
+    // exclude the Spotlight product and Carousel picks from the main grid
+    if (!filters.onlyEditorsPick && !filters.category && !filters.q) {
+      const carouselIds = new Set(editorsPicksList.map((p) => p.id));
+      if (spotlightProduct) carouselIds.add(spotlightProduct.id);
+      list = list.filter((p) => !carouselIds.has(p.id));
+    }
 
     // Price filter
     if (filters.priceRange === "UNDER_100") {
@@ -237,21 +255,11 @@ export default function App() {
     filters.onlyEditorsPick,
     filters.onlyOnSale,
     filters.sort,
+    filters.category,
+    filters.q,
+    editorsPicksList,
+    spotlightProduct,
   ]);
-
-  // Spotlight product: distinct from the first row of products in the grid
-  const spotlightProduct = useMemo(() => {
-    if (!rawProducts || rawProducts.length === 0) return null;
-    const iconic = rawProducts.find((p) => p.slug === "sony-wh-1000xm5");
-    if (iconic) return iconic;
-    const candidate = rawProducts.find(
-      (p) =>
-        p.ratingAvg >= 4.8 &&
-        p.id !== rawProducts[0]?.id &&
-        p.id !== rawProducts[1]?.id,
-    );
-    return candidate || rawProducts[0];
-  }, [rawProducts]);
 
   const resetAllFilters = () => {
     updateFilters({
@@ -271,15 +279,6 @@ export default function App() {
     if (!el) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-  };
-
-  const handleSelectCategory = (catSlug) => {
-    updateFilters((f) => ({
-      ...f,
-      category: f.category === catSlug ? null : catSlug,
-      page: 1,
-    }));
-    scrollToCatalog();
   };
 
   const handleViewAllEditorsPicks = () => {
@@ -334,14 +333,7 @@ export default function App() {
         onViewAll={handleViewAllEditorsPicks}
       />
 
-      {/* 5. Browse by Category Section */}
-      <CategoryBrowseSection
-        categories={categories}
-        categoryCounts={categoryCounts}
-        onSelectCategory={handleSelectCategory}
-      />
-
-      {/* 6. Collection Section (Section Heading & Description -> Sticky Filters -> Grid) */}
+      {/* 5. Collection Section (Section Heading & Description -> Sticky Filters -> Grid) */}
       <section className="collection-section" id="collection">
         {/* Section Heading & Description */}
         <div className="container collection-heading-block">

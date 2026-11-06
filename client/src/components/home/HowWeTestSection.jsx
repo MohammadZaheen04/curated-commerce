@@ -4,7 +4,7 @@ export function HowWeTestSection({ onOpenManifesto, productsCount }) {
   return (
     <section className="how-we-test-section" aria-label="Testing Methodology">
       <div className="container">
-        <div className="section-header-centered">
+        <div className="section-header-editorial">
           <div className="section-pill-tag">
             <Icons.Check size={12} strokeWidth={2.4} />
             <span>Editorial Verification</span>
